@@ -1,8 +1,8 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title> Marouf Paul | Data Science Portfolio</title>
+  <title>Marouf Paul | Data Science Portfolio</title>
   <meta name="description" content="Data Science Portfolio of Mohammad Marouf Paul" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -32,7 +32,8 @@
       <nav id="navbar" class="nav-closed">
         <ul>
           <li><a href="#hero" class="nav-link">Home</a></li>
-          <li><a href="#about" class="nav-link">About</a></li>
+          <!-- Replaced “About” with “Education” -->
+          <li><a href="#education" class="nav-link">Education</a></li>
           <li><a href="#skills" class="nav-link">Skills</a></li>
           <li><a href="#experience" class="nav-link">Experience</a></li>
           <li><a href="#projects" class="nav-link">Projects</a></li>
@@ -49,60 +50,69 @@
     </div>
   </header>
 
-  <!-- HERO SECTION (2-column layout) -->
+  <!-- HERO SECTION (Left column: top + bottom, Right column: 3D) -->
   <section id="hero" class="hero-section">
-    <!-- LEFT COLUMN: TEXT/CONTENT -->
     <div class="hero-left">
-      <div class="hero-content">
-        <h1 class="hero-title">Hello, I'm <span class="highlight"> Marouf Paul</span></h1>
-        <p class="hero-subtitle">Data Scientist | Software Developer | AI/ML Researcher</p>
+      <!-- TOP PART: Name, Photo, Title, CTA Buttons -->
+      <div class="hero-top">
+        <!-- Demo image inserted here -->
+        <img 
+          src="profilepic.JPG" 
+          alt="Profile Picture" 
+          style="width: 250px; height: 250px; border-radius: 50%; margin-bottom: 20px; object-fit: cover;"
+        />
+
+        <h1 class="hero-title">
+          Hello, I'm <span class="highlight">Marouf Paul</span>
+        </h1>
+        <p class="hero-subtitle">
+          Data Scientist | Software Developer | AI/ML Researcher
+        </p>
         <div class="hero-cta">
           <a href="#projects" class="btn btn-primary">View My Projects</a>
           <a href="#contact" class="btn btn-secondary">Contact Me</a>
         </div>
       </div>
+
+      <!-- BOTTOM PART: About Me -->
+      <div class="hero-bottom">
+        <h2>About Me</h2>
+        <p>
+          I’m a data scientist passionate about AI, 
+          machine learning, and computational research. 
+          My interests include building complex models, 
+          analyzing large datasets, and using interactive 
+          3D visualizations to present data in 
+          captivating ways.
+        </p>
+      </div>
     </div>
 
-    <!-- RIGHT COLUMN: 3D ANIMATION -->
+    <!-- RIGHT COLUMN: 3D Animation -->
     <div class="hero-right">
-      <!-- The container for your 3D scene -->
       <div id="hero-3d-bg"></div>
     </div>
   </section>
   
+  <!-- EDUCATION AS A SEPARATE SECTION -->
+  <section id="education" class="section-container">
+    <h2>Education</h2>
+    <div class="education-details">
+      <h3>William &amp; Mary (May 2026)</h3>
+      <p><strong>M.S. in Computer Science</strong>, specializing in Computational Operations Research</p>
+      <p>Williamsburg, VA</p>
 
-  <!-- ABOUT / EDUCATION SECTION -->
-  <section id="about" class="section-container">
-    <h2>About &amp; Education</h2>
-    <div class="two-column-layout">
-      <div class="about-text fade-in">
-        <p>
-          I'm a graduate student and software developer passionate about data
-          science, machine learning, and computational research. With a
-          background in satellite operations and AI for social impact, I thrive
-          on turning complex ideas into innovative solutions.
-        </p>
-        <p>
-          Here’s a bit about my educational journey:
-        </p>
-      </div>
-      <div class="education fade-in">
-        <h3>William &amp; Mary (May 2026)</h3>
-        <p><strong>M.S. Computer Science</strong> – Specialization in Computational Operations Research</p>
-        <p>Williamsburg, VA</p>
+      <h3>Rhodes College (May 2024)</h3>
+      <p><strong>B.S. in Computer Science, Minor in Mathematics</strong></p>
+      <p>Memphis, TN | GPA: 3.83</p>
 
-        <h3>Rhodes College (May 2024)</h3>
-        <p><strong>B.S. Computer Science, Minor in Mathematics</strong></p>
-        <p>Memphis, TN | GPA: 3.83</p>
-        
-        <p class="courses">
-          <strong>Relevant Coursework:</strong>
-          Statistical Learning, Deep Learning, Machine Learning, 
-          Linear Programming, Advanced Algorithms, High Performance Computing, 
-          Probability, Linear Algebra, Reliability, Network Theory, 
-          Mathematical Statistics
-        </p>
-      </div>
+      <p class="courses">
+        <strong>Relevant Coursework:</strong>
+        Statistical Learning, Deep Learning, Machine Learning, 
+        Linear Programming, Advanced Algorithms, High Performance Computing, 
+        Probability, Linear Algebra, Reliability, Network Theory, 
+        Mathematical Statistics
+      </p>
     </div>
   </section>
 
@@ -439,7 +449,6 @@
   </footer>
 
   <!-- External JS -->
-   <!-- Link to your new JS animation file -->
   <script type="module" src="./3d-animation.js"></script>
   <script src="script.js"></script>
 </body>

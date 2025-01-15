@@ -107,27 +107,38 @@ nav a:hover {
 
 /* HERO SECTION WRAPPER */
 .hero-section {
-  display: flex;         /* makes two columns */
-  flex-wrap: nowrap;     /* keep them side by side */
+  display: flex;         /* Two columns: left + right */
+  flex-wrap: nowrap;
   min-height: 90vh;      /* ensure enough height */
-  /* Optional: background if you want a fallback color */
-  background-color: #2D2F36;
+  background-color: #2D2F36; /* optional fallback background */
 }
 
-/* LEFT COLUMN: TEXT */
+/* LEFT COLUMN: We will place .hero-top and .hero-bottom vertically */
 .hero-left {
-  flex: 0 0 50%;        /* occupy ~50% width (adjust as needed) */
+  flex: 0 0 50%; 
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;  /* stack top + bottom vertically */
+  justify-content: space-between; /* optional: space top/bottom apart */
   padding: 20px;
+  /* remove align-items: center; if you want more control of top & bottom */
+}
+
+/* Example: top portion (name, subtitle, CTA) */
+.hero-top {
+  margin-bottom: 20px; /* space between top and bottom segments */
+}
+
+/* Example: bottom portion (about or additional text) */
+.hero-bottom {
+  /* you can style the about text here, e.g. margin-top or font styling */
+  margin-top: 20px;
 }
 
 /* RIGHT COLUMN: 3D ANIMATION */
 .hero-right {
-  position: relative;   /* so #hero-3d-bg can fill it absolutely */
-  flex: 1;              /* take remaining space */
-  overflow: hidden;     /* if you want to hide anything overflowing */
+  position: relative;  /* so #hero-3d-bg can fill it absolutely */
+  flex: 1;            /* fill remaining space */
+  overflow: hidden;   
 }
 
 /* The 3D container inside the right column */
@@ -137,17 +148,10 @@ nav a:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  /* background: #111;  (optional fallback) */
-  z-index: 1;           /* just to ensure it's behind any text if needed */
+  z-index: 1; 
 }
 
-/* TEXT STYLES (example) */
-.hero-content {
-  max-width: 500px;     /* limit the text container width */
-  margin: auto;         /* center it within hero-left */
-  text-align: left;     /* or center, as you prefer */
-}
-
+/* TEXT STYLES (Hero Titles, Subtitles, etc.) */
 .hero-title {
   font-size: 2.5rem;
   margin-bottom: 15px;
@@ -166,18 +170,12 @@ nav a:hover {
   margin-top: 10px;
 }
 
-
-
-
 /* SECTION WRAPPERS */
 .section-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 60px 20px;
-  /* Slightly lighter background than body, if you want:
-     background: #2B3B4A;
-     or keep it transparent if you prefer a consistent dark
-  */
+  /* Example: background: #2B3B4A; if you want an alternate BG */
 }
 .section-container h2 {
   margin-bottom: 20px;
@@ -204,7 +202,7 @@ nav a:hover {
 }
 .education {
   flex: 1 1 400px;
-  background: #2D3F54; /* Slightly different shade */
+  background: #2D3F54;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -431,7 +429,7 @@ nav a:hover {
     display: flex;
     flex-direction: column;
     position: absolute;
-    top: 70px;
+    top: 30px;
     right: 0;
     background-color: #18222F;
     width: 200px;
@@ -447,4 +445,55 @@ nav a:hover {
   .two-column-layout {
     flex-direction: column;
   }
+
+  /* For hero to stack columns vertically on mobile */
+  .hero-section {
+    flex-direction: column;
+  }
+  .hero-left,
+  .hero-right {
+    width: 100%;
+    flex: none;
+  }
+  #hero-3d-bg {
+    position: relative;
+    height: 300px; /* or any fixed height for small screens */
+  }
+}
+
+/* 
+ * ADDED SUPPORT FOR .hero-top & .hero-bottom 
+ * to stack vertically within the left column
+ */
+ .hero-left {
+  flex-direction: column;
+  /* 
+     Instead of "justify-content: space-between;" 
+     we set some margin/padding to push .hero-bottom down
+  */
+  justify-content: flex-start; 
+  padding: 250px;
+  position: relative; /* so we can position .hero-top or a photo absolutely if desired */
+}
+
+
+.hero-top {
+  /* We'll add more margin-bottom to create extra vertical space */
+  margin-bottom: 100px; /* previously 20px; now bigger to push .hero-bottom lower */
+}
+
+/* If you plan to place a photo, you can do something like: 
+.hero-top img {
+  margin-bottom: 20px;
+  border-radius: 50%; 
+  width: 120px; 
+  height: 120px; 
+  object-fit: cover;
+}
+*/
+
+/* The bottom portion (About) */
+.hero-bottom {
+  margin-top: 50px;
+  /* If you need even more space, you can add padding or set a min-height to .hero-top, etc. */
 }
