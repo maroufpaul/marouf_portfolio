@@ -1,0 +1,444 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Neural Network + Fractal</title>
+  <meta name="description" content="Data Science Portfolio of Mohammad Marouf Paul" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Font Awesome (CDN) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  />
+
+</head>
+<body>
+  <!-- HEADER / NAVIGATION -->
+  <header class="header" id="header">
+    <div class="nav-container">
+      <div class="logo">
+        <a href="#hero">Marouf</a>
+      </div>
+      <nav id="navbar" class="nav-closed">
+        <ul>
+          <li><a href="#hero" class="nav-link">Home</a></li>
+          <li><a href="#about" class="nav-link">About</a></li>
+          <li><a href="#skills" class="nav-link">Skills</a></li>
+          <li><a href="#experience" class="nav-link">Experience</a></li>
+          <li><a href="#projects" class="nav-link">Projects</a></li>
+          <li><a href="#publications" class="nav-link">Publications</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <!-- Hamburger menu (mobile) -->
+        <div class="hamburger" id="hamburger">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+   <!-- 3D Background Container (canvas will go here or be automatically inserted) -->
+   <div id="three-bg"></div>
+ 
+
+  <!-- HERO SECTION -->
+  <section id="hero" class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Hello, I'm <span class="highlight">Mohammad Marouf Paul</span>
+      </h1>
+      <p class="hero-subtitle">
+        Data Scientist | Software Developer | AI/ML Researcher
+      </p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">View My Projects</a>
+        <a href="#contact" class="btn btn-secondary">Contact Me</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT / EDUCATION SECTION -->
+  <section id="about" class="section-container">
+    <h2>About &amp; Education</h2>
+    <div class="two-column-layout">
+      <div class="about-text fade-in">
+        <p>
+          I'm a graduate student and software developer passionate about data
+          science, machine learning, and computational research. With a
+          background in satellite operations and AI for social impact, I thrive
+          on turning complex ideas into innovative solutions.
+        </p>
+        <p>
+          Here’s a bit about my educational journey:
+        </p>
+      </div>
+      <div class="education fade-in">
+        <h3>William &amp; Mary (May 2026)</h3>
+        <p><strong>M.S. Computer Science</strong> – Specialization in Computational Operations Research</p>
+        <p>Williamsburg, VA</p>
+
+        <h3>Rhodes College (May 2024)</h3>
+        <p><strong>B.S. Computer Science, Minor in Mathematics</strong></p>
+        <p>Memphis, TN | GPA: 3.83</p>
+        
+        <p class="courses">
+          <strong>Relevant Coursework:</strong>
+          Statistical Learning, Deep Learning, Machine Learning, 
+          Linear Programming, Advanced Algorithms, High Performance Computing, 
+          Probability, Linear Algebra, Reliability, Network Theory, 
+          Mathematical Statistics
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS SECTION -->
+  <section id="skills" class="section-container section-alt-bg">
+    <h2>Skills</h2>
+    <div class="skills-wrapper">
+      <div class="skill-category fade-in">
+        <h3><i class="fas fa-code"></i> Languages</h3>
+        <ul>
+          <li>Python, SQL, R, Java, C, JavaScript, MATLAB</li>
+        </ul>
+      </div>
+      <div class="skill-category fade-in">
+        <h3><i class="fas fa-brain"></i> Data Science &amp; ML</h3>
+        <ul>
+          <li>TensorFlow, PyTorch, scikit-learn, Pandas, NumPy, Matplotlib</li>
+        </ul>
+      </div>
+      <div class="skill-category fade-in">
+        <h3><i class="fas fa-tools"></i> Tools, Databases &amp; Platforms</h3>
+        <ul>
+          <li>Git, Linux/UNIX, AWS (EC2, S3), Docker, Jupyter</li>
+          <li>SQLite, PostgreSQL, MongoDB</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE SECTION -->
+  <section id="experience" class="section-container">
+    <h2>Professional Experience</h2>
+
+    <div class="experience-card fade-in">
+      <h3>Software Developer - RHOK-SAT <span>(Aug 2021 - July 2024)</span></h3>
+      <h4>Rhodes College, Memphis, TN</h4>
+      <ul>
+        <li>
+          Developed flight software in C and Embedded C on FreeRTOS for satellite operations as part of a 
+          NASA-selected CubeSat Launch Initiative (CSLI) project.
+        </li>
+        <li>
+          Created a satellite database using Python and SQLAlchemy (SQLite) for real-time telemetry and
+          experiment data processing, optimizing ETL efficiency with advanced SQL queries.
+        </li>
+        <li>
+          Improved energy efficiency by 15% through an interrupt-driven power management system.
+        </li>
+        <li>
+          Developed a robust communication protocol achieving 100% data recovery despite a 50% frame loss
+          rate between the Ground Station and RHOK-SAT in low Earth orbit.
+        </li>
+      </ul>
+      <p class="experience-links">
+        <a
+          href="https://news.rhodes.edu/stories/students-discuss-satellite-project-aiaa-conference-win-prize"
+          target="_blank"
+        >
+          Award Announcement
+        </a>
+        <span>|</span>
+        <a
+          href="https://en.wikipedia.org/wiki/RHOK-SAT"
+          target="_blank"
+        >
+          RHOK-SAT Wiki
+        </a>
+      </p>
+    </div>
+
+    <div class="experience-card fade-in">
+      <h3>Graduate Teaching Assistant <span>(Aug 2024 - Present)</span></h3>
+      <h4>William &amp; Mary, Williamsburg, VA</h4>
+      <ul>
+        <li>Lead lectures, tutor, and grade for 80 undergraduate students in Calculus II.</li>
+        <li>Developed strong presentation and leadership skills while managing a diverse group of learners.</li>
+      </ul>
+    </div>
+
+    <div class="experience-card fade-in">
+      <h3>AI/ML Research Collaborator <span>(Oct 2024 - Present)</span></h3>
+      <h4>Omdena - AI for Social Good Projects (Remote)</h4>
+      <ul>
+        <li>
+          Contributing to the development of a real-time SIBI sign language
+          translation AI platform for Indonesia’s Deaf community, providing an end-to-end system for sign-to-text
+          and text-to-sign communication.
+        </li>
+        <li>
+          Processed, analyzed, and augmented sign language datasets using motion trimming, keypoint extraction,
+          and data augmentation techniques to ensure robust training data.
+        </li>
+        <li>
+          Collaborating with a global team of 20+ data scientists to develop AI solutions for social impact.
+        </li>
+      </ul>
+      <p class="experience-links">
+        <a
+          href="https://docs.google.com/document/d/1nthZZDahL1Lf_lvRo87ABh-VRJmr8p3yhP1fKlMSF-I/edit?usp=sharing"
+          target="_blank"
+        >
+          Project Details
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- PROJECTS SECTION -->
+  <section id="projects" class="section-container section-alt-bg">
+    <h2>Projects</h2>
+    <!-- Use a grid or slider for projects -->
+    <div class="projects-grid">
+      <!-- Project #1 -->
+      <div class="project-card fade-in">
+        <img
+          src="https://via.placeholder.com/400x250"
+          alt="Project Thumbnail"
+          class="project-image"
+        />
+        <h3>NLP Chatbot for Rhodes College</h3>
+        <p class="project-description">
+          Built an automated student support chatbot by scraping college
+          resources and implementing NLTK &amp; spaCy for intent classification
+          (90% accuracy). Created end-to-end system with Flask &amp; 
+          BeautifulSoup for data collection.
+        </p>
+        <p><strong>Tech:</strong> Python, NLTK, spaCy, Flask, BeautifulSoup</p>
+        <div class="project-links">
+          <a
+            href="https://github.com/maroufpaul/Rho-Bot2.0"
+            target="_blank"
+          >
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </div>
+      </div>
+
+      <!-- Project #2 -->
+      <div class="project-card fade-in">
+        <img
+          src="https://via.placeholder.com/400x250"
+          alt="Project Thumbnail"
+          class="project-image"
+        />
+        <h3>Ultrasound Signal Classification Research</h3>
+        <p class="project-description">
+          Developed an ML model using autoencoder neural networks to analyze
+          bone tissue signals for osteoporosis research, reducing
+          high-dimensional data to 16 features.
+        </p>
+        <p>
+          <strong>Tech:</strong> Python, TensorFlow, NumPy, scikit-learn
+        </p>
+        <div class="project-links">
+          <a
+            href="https://github.com/kairos310/ultrasound_classification/tree/main"
+            target="_blank"
+          >
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </div>
+      </div>
+
+      <!-- Project #3 -->
+      <div class="project-card fade-in">
+        <img
+          src="https://via.placeholder.com/400x250"
+          alt="Project Thumbnail"
+          class="project-image"
+        />
+        <h3>Predicting Hyperparameters for GPR</h3>
+        <p class="project-description">
+          Designed a pipeline to predict optimal hyperparameters for Gaussian
+          Process Regression using a neural network, cutting model fitting time
+          from 8 hours to 30 minutes.
+        </p>
+        <p>
+          <strong>Tech:</strong> Python, PyTorch, NumPy, scikit-learn
+        </p>
+        <div class="project-links">
+          <a
+            href="https://github.com/maroufpaul/gpr_optimizer"
+            target="_blank"
+          >
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </div>
+      </div>
+
+      <!-- Project #4 -->
+      <div class="project-card fade-in">
+        <img
+          src="https://via.placeholder.com/400x250"
+          alt="Project Thumbnail"
+          class="project-image"
+        />
+        <h3>Omics Data Analyzer</h3>
+        <p class="project-description">
+          A Python-based web app for analyzing and visualizing omics datasets.
+          Includes tools for data preprocessing, PCA, and heatmap generation,
+          making complex analyses accessible to non-coders.
+        </p>
+        <p>
+          <strong>Tech:</strong> Python, Flask, Data Visualization
+        </p>
+        <div class="project-links">
+          <a
+            href="https://github.com/maroufpaul/data_analyzer"
+            target="_blank"
+          >
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </div>
+      </div>
+
+      <!-- Project #5 -->
+      <div class="project-card fade-in">
+        <img
+          src="https://via.placeholder.com/400x250"
+          alt="Project Thumbnail"
+          class="project-image"
+        />
+        <h3>Sentimental Analysis</h3>
+        <p class="project-description">
+          A straightforward algorithm that determines sentiment (positive,
+          neutral, or negative) in groups of movie reviews. Utilizes text
+          processing and classification techniques for precise analysis.
+        </p>
+        <p>
+          <strong>Tech:</strong> Java
+        </p>
+        <div class="project-links">
+          <a
+            href="https://github.com/maroufpaul/Sentimental-Analysis"
+            target="_blank"
+          >
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PUBLICATIONS & HONORS SECTION -->
+  <section id="publications" class="section-container">
+    <h2>Publications &amp; Honors</h2>
+    <div class="publications-list fade-in">
+      <h3>Publication</h3>
+      <p>
+        Paul, M.M., Pastrana, J.R., Matar, A., Wong, Z.Y. 
+        <em>Software Design of RHOK-SAT, a 1U CubeSat to Characterize 
+        Perovskites in Low Earth Orbit</em>. AIAA’s 2023 Region II Student 
+        Conference: 2023-71267, Session: Team Category. Published Online: 
+        March 8, 2024. DOI: 10.2514/6.2023-71267.
+      </p>
+    </div>
+    <div class="honors-list fade-in">
+      <h3>Honors &amp; Awards</h3>
+      <ul>
+        <li>Tuition Fellowship, Graduate Student Advisory Board Fellowship, William &amp; Mary</li>
+        <li>2nd Place, AIAA Region II Conference, Team Category, Knoxville, TN, 2023</li>
+        <li>Diehl Scholarship, Rhodes College</li>
+        <li>Honor Roll, Rhodes College</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CERTIFICATIONS SECTION -->
+  <section id="certifications" class="section-container section-alt-bg">
+    <h2>Certifications</h2>
+    <div class="certifications-list fade-in">
+      <ul>
+        <li>
+          <strong>DeepLearning.AI TensorFlow Developer Certificate</strong>
+          <span>(12/07/2023)</span>
+        </li>
+        <li>
+          <strong>IBM Certification in PyTorch for Deep Neural Networks</strong>
+          <span>(12/07/2023)</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CONTACT SECTION -->
+  <section id="contact" class="section-container">
+    <h2>Contact Me</h2>
+    <p class="contact-intro fade-in">
+      Interested in learning more about my work or collaborating on a project?
+      Feel free to reach out!
+    </p>
+    <div class="contact-info fade-in">
+      <p>
+        <strong>Phone:</strong> 
+        <a href="tel:9012798939">901-279-8939</a>
+      </p>
+      <p>
+        <strong>Email:</strong> 
+        <a href="mailto:maroufpaul2@gmail.com">maroufpaul2@gmail.com</a>
+      </p>
+      <p>
+        <strong>LinkedIn:</strong> 
+        <a href="https://linkedin.com/in/marouf-mohammad-paul" target="_blank">
+          linkedin.com/in/marouf-mohammad-paul
+        </a>
+      </p>
+      <p>
+        <strong>GitHub:</strong> 
+        <a href="https://github.com/maroufpaul" target="_blank">
+          github.com/maroufpaul
+        </a>
+      </p>
+    </div>
+    <!-- Optional Contact Form -->
+    <form class="contact-form fade-in">
+      <label for="name">Name:</label>
+      <input type="text" id="name" placeholder="Your Name" />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" placeholder="Your Email" />
+
+      <label for="message">Message:</label>
+      <textarea id="message" rows="4" placeholder="Your Message"></textarea>
+
+      <button type="submit" class="btn btn-primary">Send Message</button>
+    </form>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" id="footer">
+    <p>
+      &copy; 2025 Mohammad Marouf Paul. All rights reserved.
+    </p>
+  </footer>
+
+  <!-- External JS -->
+   <!-- Link to your new JS animation file -->
+   <script type="module" src="./3d-animation.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
