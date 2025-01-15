@@ -1,6 +1,6 @@
 # Data Science Portfolio with 3D Fractal & Neural Network Animation
 
-Welcome to the **Data Science Portfolio** project of Marouf Paul! This repository showcases a **modern, interactive** web portfolio featuring:
+Welcome to the ** My Portfolio** project of Marouf Paul! This repository showcases a **modern, interactive** web portfolio featuring:
 
 - A **two-column hero layout**: text and CTAs on the left, a **3D fractal + neural network** animation on the right.  
 - A **rotating fractal sphere** driven by custom shaders (for wave-like distortion and color shifting).  
@@ -28,7 +28,7 @@ Welcome to the **Data Science Portfolio** project of Marouf Paul! This repositor
 
 This project is built to **showcase my portfolio** or any anyone who wants a **visually engaging** hero section. The hero is divided into **two columns**:
 
-- **Left**: Introduces Marouf Paul, showing key data science roles, a short subtitle, and action buttons (View Projects, Contact).  
+- **Left**: Introduces ME!!!, showing key roles, a short subtitle, and action buttons (View Projects, Contact).  
 - **Right**: A **3D fractal sphere** that rotates continuously, changes color based on mouse movement, and brightens on hover. Around it floats a **neural network** of nodes connected by lines, each line pulsing in opacity thanks to simplex-noise.
 
 The rest of the site (e.g., About, Skills, Projects, Experience) remains a typical portfolio layout—**clean** and **professional**.
