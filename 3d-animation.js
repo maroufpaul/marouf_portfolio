@@ -34,25 +34,25 @@ let raycaster, mouse;
 let time = 0; // global animation time
 
 // Scene
-const BG_COLOR = 0x000000; // black background
-const CAMERA_FOV = 45;
-const CAMERA_NEAR = 0.1;
-const CAMERA_FAR = 1000;
+const BG_COLOR = 0x20232a; // black background
+const CAMERA_FOV = 30;
+const CAMERA_NEAR = 0.4;
+const CAMERA_FAR = 90;
 
 // Fractal Sphere Config
 const SPHERE_RADIUS = 10;
-const SPHERE_DETAIL = 128;
+const SPHERE_DETAIL = 50;
 const BASE_DISPLACEMENT = 1.2;  // base push along normals
-const NOISE_SCALE = 0.4;        // fractal noise scale
-const COLOR_SHIFT_SPEED = 0.5;  // how quickly color changes on mouse movement
+const NOISE_SCALE = 0.5;        // fractal noise scale
+const COLOR_SHIFT_SPEED = 3;  // how quickly color changes on mouse movement
 
 // Mouse Interactivity
 let mouseX = 0, mouseY = 0; // track normalized mouse coords for color shift
 
 // Neural Network
-const NODE_COUNT = 40;
-const NODE_SPREAD = 50;
-const CONNECTION_DISTANCE = 12;
+const NODE_COUNT = 150;
+const NODE_SPREAD = 100;
+const CONNECTION_DISTANCE = 20;
 const NODE_BASE_COLOR = new THREE.Color(0xffffff);
 const NODE_EMISSIVE = new THREE.Color(0x1abc9c); // teal
 const LINE_COLOR = 0x00ffcc; 
@@ -127,7 +127,7 @@ export function init() {
     CAMERA_NEAR,
     CAMERA_FAR
   );
-  camera.position.set(0, 0, 30);
+  camera.position.set(-10, -30, 30);
 
   // 3) Renderer
   const container = document.getElementById('hero-3d-bg');
@@ -135,12 +135,19 @@ export function init() {
   renderer.setSize(container.clientWidth, container.clientHeight);
   container.appendChild(renderer.domElement);
 
+
+
   // 4) OrbitControls
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
   controls.autoRotate = true;
   controls.autoRotateSpeed = 0.3;
+  controls.enableRotate = true;  // disables user rotation
+  controls.enablePan = false;     // no panning
+  controls.enableZoom = true;    // no zoom
+
+ 
 
   // 5) Lights
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);

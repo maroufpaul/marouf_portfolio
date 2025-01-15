@@ -105,53 +105,69 @@ nav a:hover {
   transition: 0.3s;
 }
 
-/* HERO SECTION */
+/* HERO SECTION WRAPPER */
 .hero-section {
-  position: relative;    /* So we can position 3D canvas behind content */
-  min-height: 90vh;      /* Enough space for hero + fractal animation */
-  overflow: hidden;
+  display: flex;         /* makes two columns */
+  flex-wrap: nowrap;     /* keep them side by side */
+  min-height: 90vh;      /* ensure enough height */
+  /* Optional: background if you want a fallback color */
+  background-color: #2D2F36;
+}
+
+/* LEFT COLUMN: TEXT */
+.hero-left {
+  flex: 0 0 50%;        /* occupy ~50% width (adjust as needed) */
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
+  padding: 20px;
 }
 
-/* 3D BACKGROUND (Inside Hero) */
+/* RIGHT COLUMN: 3D ANIMATION */
+.hero-right {
+  position: relative;   /* so #hero-3d-bg can fill it absolutely */
+  flex: 1;              /* take remaining space */
+  overflow: hidden;     /* if you want to hide anything overflowing */
+}
+
+/* The 3D container inside the right column */
 #hero-3d-bg {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* behind hero content */
-  background: transparent;
-  overflow: hidden;
+  /* background: #111;  (optional fallback) */
+  z-index: 1;           /* just to ensure it's behind any text if needed */
 }
 
-/* HERO CONTENT */
+/* TEXT STYLES (example) */
 .hero-content {
-  max-width: 700px;
-  padding: 0 20px;
-  animation: fadeIn 1s ease forwards;
+  max-width: 500px;     /* limit the text container width */
+  margin: auto;         /* center it within hero-left */
+  text-align: left;     /* or center, as you prefer */
 }
+
 .hero-title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin-bottom: 15px;
   font-weight: 800;
-  color: #f2f2f2; /* ensure readability on dark background */
+  color: #f2f2f2;
 }
+
 .hero-subtitle {
   font-size: 1.2rem;
   margin-bottom: 25px;
   color: #bdc3c7;
 }
+
 .hero-cta .btn {
   margin-right: 10px;
   margin-top: 10px;
 }
-.highlight {
-  color: #1abc9c; /* teal highlight */
-}
+
+
+
 
 /* SECTION WRAPPERS */
 .section-container {
