@@ -1,5 +1,17 @@
 // script.js
 
+window.addEventListener('scroll', () => {
+  const hero = document.getElementById('hero');
+  const heroHeight = hero.offsetHeight; 
+  const scrollPos = window.scrollY;
+
+  if (scrollPos > heroHeight) {
+    document.getElementById('hero-3d-bg').style.opacity = 0;
+  } else {
+    document.getElementById('hero-3d-bg').style.opacity = 1;
+  }
+});
+
 // Mobile menu toggle
 const hamburger = document.getElementById('hamburger');
 const navbar = document.getElementById('navbar');

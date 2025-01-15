@@ -1,26 +1,26 @@
-<!-- index.html -->
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>3D Neural Network + Fractal</title>
+  <title>Mohammad Marouf Paul | Data Science Portfolio</title>
   <meta name="description" content="Data Science Portfolio of Mohammad Marouf Paul" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- External CSS -->
   <link rel="stylesheet" href="styles.css" />
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link
     href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap"
     rel="stylesheet"
   />
+
   <!-- Font Awesome (CDN) -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
   />
-
 </head>
 <body>
   <!-- HEADER / NAVIGATION -->
@@ -49,12 +49,11 @@
     </div>
   </header>
 
-   <!-- 3D Background Container (canvas will go here or be automatically inserted) -->
-   <div id="three-bg"></div>
- 
-
-  <!-- HERO SECTION -->
+  <!-- HERO SECTION (confine 3D to hero only) -->
   <section id="hero" class="hero-section">
+    <!-- Div dedicated to the 3D canvas -->
+    <div id="hero-3d-bg"></div>
+
     <div class="hero-content">
       <h1 class="hero-title">
         Hello, I'm <span class="highlight">Mohammad Marouf Paul</span>
@@ -68,6 +67,7 @@
       </div>
     </div>
   </section>
+  
 
   <!-- ABOUT / EDUCATION SECTION -->
   <section id="about" class="section-container">
@@ -438,7 +438,7 @@
 
   <!-- External JS -->
    <!-- Link to your new JS animation file -->
-   <script type="module" src="./3d-animation.js"></script>
+  <script type="module" src="./3d-animation.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

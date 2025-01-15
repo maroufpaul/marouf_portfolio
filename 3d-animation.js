@@ -1,255 +1,352 @@
-// 3d-animation.js
+/*******************************************************
+ * 3d-animation.js
+ *
+ * A more exciting, interactive 3D scene that includes:
+ *   - A fractal sphere (custom shader) with dynamic distortion
+ *   - Neural network of glowing nodes & pulsating lines
+ *   - Advanced mouse interactivity (color shift, sphere displacement)
+ *   - Smooth camera controls via OrbitControls
+ *   - Simplex noise for subtle line pulses & fractal changes
+ *
+ * Setup:
+ *   1) <script type="module" src="./3d-animation.js">
+ *   2) A local patched OrbitControls in ./libs/OrbitControls.js
+ *   3) <div id="hero-3d-bg"></div> in your hero section
+ ******************************************************/
 
 import * as THREE from 'https://unpkg.com/three@0.152.2/build/three.module.js';
 import { OrbitControls } from './libs/OrbitControls.js';
-import { SimplexNoise as Noise } from 'https://unpkg.com/simplex-noise@4.0.1/dist/esm/simplex-noise.js';
+import { createNoise3D } from 'https://unpkg.com/simplex-noise@4.0.1/dist/esm/simplex-noise.js';
 
-/* 
-   ^ This ensures that OrbitControls references the same 
-   version of Three (r152) as your main import, 
-   and we have a valid ES module for SimplexNoise.
-*/
+// We'll create a 3D noise function for CPU side effects:
+const noise3D = createNoise3D(Math.random);
 
-// ----- GLOBAL VARIABLES -----
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 1) GLOBALS & CONFIG
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 let scene, camera, renderer, controls;
-let fractalMesh;
-let neuronGroup, lineGroup;
+let fractalSphere, fractalMaterial; 
+let neuralNetGroup, lineGroup;
+let nodeMeshes = [], nodePositions = [];
 let raycaster, mouse;
-let nodeSpheres = [];
-let simplex; // noise generator
 
+let time = 0; // global animation time
 
-// Adjust these to taste
-const NUM_NODES = 30;
-const MAX_CONNECTION_DISTANCE = 15; // how close neurons must be to connect
-const NODE_RADIUS = 0.3; // size of each neuron sphere
+// Scene
+const BG_COLOR = 0x000000; // black background
+const CAMERA_FOV = 45;
+const CAMERA_NEAR = 0.1;
+const CAMERA_FAR = 1000;
 
-// For fractal sphere
+// Fractal Sphere Config
 const SPHERE_RADIUS = 10;
-const DETAIL_LEVEL = 180; // number of segments
-const NOISE_SCALE = 0.5;
-const NOISE_SPEED = 0.0005; // how fast the noise evolves
+const SPHERE_DETAIL = 128;
+const BASE_DISPLACEMENT = 1.2;  // base push along normals
+const NOISE_SCALE = 0.4;        // fractal noise scale
+const COLOR_SHIFT_SPEED = 0.5;  // how quickly color changes on mouse movement
 
-// Time tracker for noise evolution
-let timeOffset = 0;
+// Mouse Interactivity
+let mouseX = 0, mouseY = 0; // track normalized mouse coords for color shift
 
-function init() {
-  // 1. Scene, Camera, Renderer
+// Neural Network
+const NODE_COUNT = 40;
+const NODE_SPREAD = 50;
+const CONNECTION_DISTANCE = 12;
+const NODE_BASE_COLOR = new THREE.Color(0xffffff);
+const NODE_EMISSIVE = new THREE.Color(0x1abc9c); // teal
+const LINE_COLOR = 0x00ffcc; 
+const LINE_BASE_OPACITY = 0.4;
+
+// Shaders for the fractal sphere
+const fractalVertexShader = `
+  uniform float uTime;
+  uniform float uDisplacement;
+  uniform float uNoiseScale;
+  uniform float uMouseX;
+  uniform float uMouseY;
+
+  varying vec3 vNormal;
+  varying vec3 vPos;
+  varying float vWave; // pass wave magnitude to fragment
+
+  void main() {
+    vNormal = normal;
+    vPos = position;
+
+    // We'll make the displacement vary with a sin wave 
+    // plus some influence from mouse coords
+    float offset = sin((position.x + position.y + position.z) * uNoiseScale 
+                       + uTime) 
+                   * (uDisplacement + uMouseX * 0.5 + uMouseY * 0.5);
+
+    vWave = offset; 
+    vec3 newPosition = position + normal * offset;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+  }
+`;
+
+const fractalFragmentShader = `
+  uniform float uTime;
+  uniform vec3 uBaseColor;
+
+  varying vec3 vNormal;
+  varying vec3 vPos;
+  varying float vWave;
+
+  void main() {
+    float intensity = dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
+    intensity = clamp(intensity, 0.0, 1.0);
+
+    // We shift color based on vWave 
+    // so parts with bigger wave offset glow differently
+    float waveFactor = 0.5 + 0.5 * sin(uTime + vWave * 2.0);
+
+    // Combine intensity with waveFactor
+    float glow = intensity * waveFactor;
+
+    vec3 color = uBaseColor * glow;
+
+    gl_FragColor = vec4(color, 1.0);
+  }
+`;
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 2) INIT FUNCTION
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+export function init() {
+  // 1) Scene
   scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(
-    45,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  camera.position.set(0, 0, 35);
+  scene.background = new THREE.Color(BG_COLOR);
 
-  // The renderer will be appended to #three-bg
-  const container = document.getElementById('three-bg');
+  // 2) Camera
+  camera = new THREE.PerspectiveCamera(
+    CAMERA_FOV,
+    getHeroAspect(),
+    CAMERA_NEAR,
+    CAMERA_FAR
+  );
+  camera.position.set(0, 0, 30);
+
+  // 3) Renderer
+  const container = document.getElementById('hero-3d-bg');
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(container.clientWidth, container.clientHeight);
   container.appendChild(renderer.domElement);
 
-  // (Optional) OrbitControls for interactive rotation
-  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  // 4) OrbitControls
+  controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
   controls.autoRotate = true;
   controls.autoRotateSpeed = 0.3;
 
-  // 2. Noise generator
-  simplex = new SimplexNoise(Math.random);
+  // 5) Lights
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+  scene.add(ambientLight);
 
-  // 3. Create fractal-like sphere
-  fractalMesh = createFractalSphere();
-  scene.add(fractalMesh);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(30, 50, 40);
+  scene.add(dirLight);
 
-  // 4. Create neural network
-  neuronGroup = new THREE.Group();
-  lineGroup = new THREE.Group();
-  scene.add(neuronGroup);
-  scene.add(lineGroup);
-  createNeuralNetwork();
-
-  // 5. Raycaster setup for hover detection
+  // 6) Raycaster & Mouse
   raycaster = new THREE.Raycaster();
   mouse = new THREE.Vector2();
 
-  // 6. Window resize handling
-  window.addEventListener('resize', onWindowResize, false);
+  // 7) Create fractal sphere
+  fractalSphere = createFractalSphere();
+  scene.add(fractalSphere);
 
-  // 7. Mouse move for hover
-  window.addEventListener('mousemove', onMouseMove, false);
+  // 8) Create neural network
+  neuralNetGroup = new THREE.Group();
+  lineGroup = new THREE.Group();
+  scene.add(neuralNetGroup, lineGroup);
+
+  createNeuralNetwork();
+
+  // 9) Event Listeners
+  window.addEventListener('resize', onWindowResize);
+  window.addEventListener('mousemove', onMouseMove);
 
   // Start animation
   animate();
 }
 
-// Create a sphere with noise-based displacement
-function createFractalSphere() {
-  const geometry = new THREE.SphereGeometry(SPHERE_RADIUS, DETAIL_LEVEL, DETAIL_LEVEL);
-  const material = new THREE.MeshPhongMaterial({
-    color: 0x222222,
-    emissive: 0x111111,
-    shininess: 50,
-    wireframe: false
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 3) HELPER FUNCTIONS
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function getHeroAspect() {
+  const hero = document.getElementById('hero');
+  const w = hero.clientWidth || window.innerWidth;
+  const h = hero.clientHeight || window.innerHeight;
+  return w / h;
+}
+
+function onWindowResize() {
+  const container = document.getElementById('hero-3d-bg');
+  camera.aspect = container.clientWidth / container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth, container.clientHeight);
+}
+
+// On mouse move, we'll also track normalized X/Y for fractal color shift
+function onMouseMove(e) {
+  const container = document.getElementById('hero-3d-bg');
+  const rect = container.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  mouse.x = (x / container.clientWidth) * 2 - 1;
+  mouse.y = -(y / container.clientHeight) * 2 + 1;
+
+  // Convert x,y to a 0..1 range for color shifting
+  mouseX = x / container.clientWidth;  
+  mouseY = y / container.clientHeight; 
+
+  // Raycasting for node hover
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(neuralNetGroup.children, true);
+
+  // Reset node scales
+  nodeMeshes.forEach(node => {
+    node.scale.setScalar(1.0);
+    node.material.emissive.set(node.userData.emissiveBase);
   });
 
-  const mesh = new THREE.Mesh(geometry, material);
+  if (intersects.length > 0) {
+    const hovered = intersects[0].object;
+    if (hovered.userData.isNode) {
+      hovered.scale.setScalar(1.5);
+      hovered.material.emissive.set(0xffffff); // highlight hovered node
+    }
+  }
+}
 
-  // Add a soft light to highlight fractal
-  const pointLight = new THREE.PointLight(0xffffff, 1.2);
-  pointLight.position.set(25, 25, 50);
-  scene.add(pointLight);
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 4) FRACTAL SPHERE
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  // Add ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-  scene.add(ambientLight);
+function createFractalSphere() {
+  fractalMaterial = new THREE.ShaderMaterial({
+    vertexShader: fractalVertexShader,
+    fragmentShader: fractalFragmentShader,
+    uniforms: {
+      uTime:        { value: 0.0 },
+      uDisplacement:{ value: BASE_DISPLACEMENT },
+      uNoiseScale:  { value: NOISE_SCALE },
+      uBaseColor:   { value: new THREE.Color(0x1abc9c) }, // base teal
+      uMouseX:      { value: 0.0 },
+      uMouseY:      { value: 0.0 }
+    },
+    side: THREE.DoubleSide,
+    transparent: false
+  });
 
+  const geo = new THREE.SphereGeometry(SPHERE_RADIUS, SPHERE_DETAIL, SPHERE_DETAIL);
+
+  const mesh = new THREE.Mesh(geo, fractalMaterial);
+  mesh.name = 'FractalSphere';
   return mesh;
 }
 
-// Distort sphere vertices with noise
-function updateFractalSphere() {
-  const position = fractalMesh.geometry.attributes.position;
-  for (let i = 0; i < position.count; i++) {
-    const x = position.getX(i);
-    const y = position.getY(i);
-    const z = position.getZ(i);
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5) NEURAL NETWORK
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    // Convert each vertex's position to spherical coordinate
-    // Then displace them based on noise
-    const noiseVal = simplex.noise4D(
-      x * NOISE_SCALE,
-      y * NOISE_SCALE,
-      z * NOISE_SCALE,
-      timeOffset
-    );
-
-    // Original sphere radius is about SPHERE_RADIUS
-    // We'll add some displacement
-    const displacement = 1 + noiseVal * 1.2; // amplitude of displacement
-    const len = Math.sqrt(x * x + y * y + z * z);
-
-    // Move vertex outward
-    const newX = (x / len) * (SPHERE_RADIUS * displacement);
-    const newY = (y / len) * (SPHERE_RADIUS * displacement);
-    const newZ = (z / len) * (SPHERE_RADIUS * displacement);
-
-    position.setXYZ(i, newX, newY, newZ);
-  }
-  position.needsUpdate = true;
-  fractalMesh.geometry.computeVertexNormals();
-}
-
-// Create neural network group with randomly placed nodes
 function createNeuralNetwork() {
-  // Generate nodes (spheres)
-  for (let i = 0; i < NUM_NODES; i++) {
-    const geometry = new THREE.SphereGeometry(NODE_RADIUS, 16, 16);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0x1abc9c,
-      emissive: 0x006064, // subdued teal
-      metalness: 0.3,
-      roughness: 0.5
+  for (let i = 0; i < NODE_COUNT; i++) {
+    const nodeGeom = new THREE.SphereGeometry(0.5, 16, 16);
+    const nodeMat = new THREE.MeshStandardMaterial({
+      color: NODE_BASE_COLOR,
+      emissive: NODE_EMISSIVE.clone(),
+      metalness: 0.2,
+      roughness: 0.3
     });
-    const sphere = new THREE.Mesh(geometry, material);
+    const nodeMesh = new THREE.Mesh(nodeGeom, nodeMat);
 
-    // Random position (slightly inside the camera area, e.g. -20..20)
-    sphere.position.set(
-      THREE.MathUtils.randFloatSpread(40),
-      THREE.MathUtils.randFloatSpread(40),
-      THREE.MathUtils.randFloatSpread(40)
+    nodeMesh.userData.isNode = true;
+    nodeMesh.userData.emissiveBase = NODE_EMISSIVE.clone();
+
+    // random positions
+    nodeMesh.position.set(
+      THREE.MathUtils.randFloatSpread(NODE_SPREAD),
+      THREE.MathUtils.randFloatSpread(NODE_SPREAD),
+      THREE.MathUtils.randFloatSpread(NODE_SPREAD)
     );
-    sphere.userData.originalScale = 1;
 
-    neuronGroup.add(sphere);
-    nodeSpheres.push(sphere);
+    neuralNetGroup.add(nodeMesh);
+    nodeMeshes.push(nodeMesh);
+    nodePositions.push(nodeMesh.position);
   }
-  // Create lines
+
+  lineGroup.name = 'NetworkLines';
   updateConnections();
 }
 
-// Connect nearby nodes with lines
 function updateConnections() {
-  // Clear old lines
-  while (lineGroup.children.length) {
+  while (lineGroup.children.length > 0) {
     lineGroup.remove(lineGroup.children[0]);
   }
-  // For each pair, if distance < threshold, connect
-  for (let i = 0; i < nodeSpheres.length; i++) {
-    for (let j = i + 1; j < nodeSpheres.length; j++) {
-      const dist = nodeSpheres[i].position.distanceTo(nodeSpheres[j].position);
-      if (dist < MAX_CONNECTION_DISTANCE) {
-        const material = new THREE.LineBasicMaterial({
-          color: 0x17b890,
-          transparent: true,
-          opacity: 0.6
-        });
+
+  for (let i = 0; i < nodeMeshes.length; i++) {
+    for (let j = i + 1; j < nodeMeshes.length; j++) {
+      const dist = nodeMeshes[i].position.distanceTo(nodeMeshes[j].position);
+      if (dist < CONNECTION_DISTANCE) {
         const points = [
-          nodeSpheres[i].position.clone(),
-          nodeSpheres[j].position.clone()
+          nodeMeshes[i].position.clone(),
+          nodeMeshes[j].position.clone()
         ];
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const line = new THREE.Line(geometry, material);
+        const geo = new THREE.BufferGeometry().setFromPoints(points);
+        const mat = new THREE.LineBasicMaterial({
+          color: LINE_COLOR,
+          transparent: true,
+          opacity: LINE_BASE_OPACITY
+        });
+        const line = new THREE.Line(geo, mat);
         lineGroup.add(line);
       }
     }
   }
 }
 
-// Animate the fractal sphere & nodes
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 6) ANIMATION LOOP
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 function animate() {
   requestAnimationFrame(animate);
 
-  // Optionally rotate fractal sphere
-  fractalMesh.rotation.y += 0.001;
+  time += 0.01;  // slower time step => calmer motion
 
-  // Update fractal with noise
-  timeOffset += NOISE_SPEED;
-  updateFractalSphere();
+  // Update fractal's uniforms
+  fractalMaterial.uniforms.uTime.value = time * 2.0; 
+  // We'll shift color based on mouseX, mouseY
+  let newColor = new THREE.Color().setHSL(
+    (mouseX * COLOR_SHIFT_SPEED + 0.4) % 1.0, 
+    0.7, 
+    0.5 + mouseY * 0.2 
+  );
+  fractalMaterial.uniforms.uBaseColor.value = newColor;
 
-  // Pulse lines (e.g., slight opacity modulations)
+  // Animate lines with 3D noise
   lineGroup.children.forEach(line => {
-    const material = line.material;
-    // Simple pulse between 0.4 and 0.8
-    material.opacity = 0.4 + 0.4 * Math.sin(performance.now() * 0.001);
+    let mat = line.material;
+    // Use line.id + time for unique offsets
+    let nVal = noise3D(line.id * 0.1, time * 0.2, 0);
+    let pulse = 0.3 + 0.3 * Math.sin(time * 3.0 + nVal * 5.0);
+    mat.opacity = Math.min(1.0, Math.max(0.0, LINE_BASE_OPACITY + pulse));
   });
 
-  // OrbitControls update
   controls.update();
-
-  // Render
   renderer.render(scene, camera);
 }
 
-// Raycasting for hover detection
-function onMouseMove(event) {
-  // Convert mouse position to normalized device coords
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+/* Optionally, if you want CPU-based fractal updates, 
+   you could add a function that loops over sphere geometry 
+   each frame, reading noise3D(...) and pushing vertices. 
+   But we do a GPU-based approach for now. */
 
-  raycaster.setFromCamera(mouse, camera);
-  // Check intersection with nodes
-  const intersects = raycaster.intersectObjects(neuronGroup.children);
-
-  // Reset all node scales
-  nodeSpheres.forEach(node => {
-    node.scale.setScalar(node.userData.originalScale);
-  });
-
-  // If we have an intersection, enlarge the node slightly
-  if (intersects.length > 0) {
-    const hovered = intersects[0].object;
-    hovered.scale.setScalar(1.5);
-  }
-}
-
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-// Initialize the scene
+// Immediately init
 init();
