@@ -430,7 +430,6 @@
       Feel free to reach out!
     </p>
     <div class="contact-info fade-in">
-      
       <p>
         <strong>Email:</strong> 
         <a href="mailto:maroufpaul2@gmail.com">maroufpaul2@gmail.com</a>
@@ -448,16 +447,17 @@
         </a>
       </p>
     </div>
-    <!-- Optional Contact Form -->
-    <form class="contact-form fade-in">
+
+    <!-- Contact Form (no action/method - using JavaScript fetch) -->
+    <form id="contactForm" class="contact-form fade-in">
       <label for="name">Name:</label>
-      <input type="text" id="name" placeholder="Your Name" />
+      <input type="text" id="name" name="name" placeholder="Your Name" required />
 
       <label for="email">Email:</label>
-      <input type="email" id="email" placeholder="Your Email" />
+      <input type="email" id="email" name="email" placeholder="Your Email" required />
 
       <label for="message">Message:</label>
-      <textarea id="message" rows="4" placeholder="Your Message"></textarea>
+      <textarea id="message" name="message" rows="4" placeholder="Your Message" required></textarea>
 
       <button type="submit" class="btn btn-primary">Send Message</button>
     </form>
@@ -465,13 +465,43 @@
 
   <!-- FOOTER -->
   <footer class="footer" id="footer">
-    <p>
-      &copy; 2025 Mohammad Marouf Paul. All rights reserved.
-    </p>
+    <p>&copy; 2025 Mohammad Marouf Paul. All rights reserved.</p>
   </footer>
 
-  <!-- External JS -->
+  <!-- SCRIPTS -->
   <script type="module" src="./3d-animation.js"></script>
   <script src="script.js"></script>
+  <script>
+    // Replace with your real Formspree endpoint
+    const FORMSPREE_ENDPOINT = "https://formspree.io/f/xyzzvlrz";
+
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
+      e.preventDefault(); // stop normal form submission
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch(FORMSPREE_ENDPOINT, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          // show success
+          alert("Thanks for your message!");
+          form.reset();
+        } else {
+          // show error
+          alert("Oops! There was a problem submitting your form");
+        }
+      } catch (error) {
+        // network error, etc.
+        alert("An error occurred: " + error);
+      }
+    });
+  </script>
 </body>
 </html>
