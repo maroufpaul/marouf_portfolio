@@ -39,31 +39,7 @@ document.querySelectorAll('.nav-link').forEach((link) => {
   });
 });
 
-const hamburger = document.querySelector('.hamburger');
-const navMenu = document.querySelector('nav ul');
 
-hamburger.addEventListener('click', () => {
-  navMenu.classList.toggle('show');
-});
-
-// Close menu when clicking a link
-document.querySelectorAll('.nav-link').forEach(link => {
-  link.addEventListener('click', () => {
-    navMenu.classList.remove('show');
-  });
-});
-function resizeCanvas() {
-  const canvas = document.getElementById('hero-canvas');
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-}
-
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-canvas.addEventListener('touchstart', handleTouchStart);
-canvas.addEventListener('touchmove', handleTouchMove);
-canvas.addEventListener('touchend', handleTouchEnd);
 // Optional: Add more interactive elements, 
 // such as intersection observers for fade-in, 
 // or modals for project details, if desired.
