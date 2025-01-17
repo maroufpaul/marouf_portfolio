@@ -40,6 +40,37 @@ document.querySelectorAll('.nav-link').forEach((link) => {
 });
 
 
+document.querySelectorAll('.modal-link').forEach(link => {
+  link.addEventListener('click', event => {
+    event.preventDefault();
+    const url = link.getAttribute('data-url');
+    const modal = document.getElementById('modal');
+    const iframe = document.getElementById('modal-iframe');
+
+    iframe.src = url;
+    modal.style.display = 'flex';
+  });
+});
+
+document.querySelector('.close-modal').addEventListener('click', () => {
+  const modal = document.getElementById('modal');
+  const iframe = document.getElementById('modal-iframe');
+
+  iframe.src = ''; // Clear the iframe
+  modal.style.display = 'none';
+});
+
+// Close modal on outside click
+window.addEventListener('click', event => {
+  const modal = document.getElementById('modal');
+  if (event.target === modal) {
+    const iframe = document.getElementById('modal-iframe');
+    iframe.src = ''; // Clear the iframe
+    modal.style.display = 'none';
+  }
+});
+
+
 // Optional: Add more interactive elements, 
 // such as intersection observers for fade-in, 
 // or modals for project details, if desired.
