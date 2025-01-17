@@ -161,7 +161,7 @@ nav a:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, transparent 0%, rgba(26, 31, 37, 0.8) 100%);
+  background: radial-gradient(circle at center, transparent 0%, rgba(22, 22, 165, 0.247) 100%);
   pointer-events: none;
 }
 
@@ -177,6 +177,23 @@ nav a:hover {
   margin-bottom: 25px;
   color: #bdc3c7;
 }
+
+.toggle-text {
+  position: absolute;
+  top: 20px; /* Adjust as needed for spacing */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2rem;
+  color: #f2f2f2;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 10; /* Ensure it appears above the animation */
+}
+
 
 .hero-cta .btn {
   margin-right: 10px;
