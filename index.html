@@ -51,42 +51,49 @@
   </header>
 
   <!-- HERO SECTION (Left column: top + bottom, Right column: 3D) -->
-  <section id="hero" class="hero-section">
-    <div class="hero-left">
-      <!-- TOP PART: Name, Photo, Title, CTA Buttons -->
-      <div class="hero-top">
-        <!-- Demo image inserted here -->
+<!-- HERO SECTION -->
+<section id="hero" class="hero-section">
+  <div class="hero-left">
+    <div class="hero-top fade-in">
+      <div style="display: flex; align-items: start;">
         <img 
           src="profilepic.JPG" 
           alt="Profile Picture" 
-          style="width: 250px; height: 250px; border-radius: 50%; margin-bottom: 20px; object-fit: cover;"
+          class="profile-image"
         />
-
-        <h1 class="hero-title">
-          Hello, I'm <span class="highlight">Marouf Paul</span>
-        </h1>
-        <p class="hero-subtitle">
-          Data Scientist | Software Developer | AI/ML Researcher
-        </p>
-        <div class="hero-cta">
-          <a href="#projects" class="btn btn-primary">View My Projects</a>
-          <a href="#contact" class="btn btn-secondary">Contact Me</a>
+        <div class="hero-about fade-in" style="margin-left: 2rem;">
+          <h2>About Me</h2>
+          <p>
+            I'm an Aspiring data scientist passionate about AI, 
+            machine learning, and computational research. 
+            My interests include building complex models, 
+            analyzing large datasets, and using interactive 
+            3D visualizations to present data in 
+            captivating ways.
+          </p>
         </div>
       </div>
-
-      <!-- BOTTOM PART: About Me -->
-      <div class="hero-bottom">
-        <h2>About Me</h2>
-        <p>
-          I’m an Aspiring data scientist passionate about AI, 
-          machine learning, and computational research. 
-          My interests include building complex models, 
-          analyzing large datasets, and using interactive 
-          3D visualizations to present data in 
-          captivating ways.
-        </p>
+      <h1 class="hero-title">
+        Hello, I'm <span class="highlight">Marouf Paul</span>
+      </h1>
+      <p class="hero-subtitle">
+        Aspiring Data Scientist | Software Developer | AI/ML Researcher
+      </p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">View My Projects</a>
+        <a href="#contact" class="btn btn-secondary">Contact Me</a>
       </div>
     </div>
+  </div>
+
+    
+  </div>
+
+  <div class="hero-right">
+    <canvas id="hero-canvas"></canvas>
+    <div class="animation-overlay"></div>
+  </div>
+</section>
 
     <!-- RIGHT COLUMN: 3D Animation -->
     <div class="hero-right">
@@ -94,27 +101,52 @@
     </div>
   </section>
   
-  <!-- EDUCATION AS A SEPARATE SECTION -->
-  <section id="education" class="section-container">
-    <h2>Education</h2>
-    <div class="education-details">
-      <h3>William &amp; Mary (May 2026)</h3>
-      <p><strong>M.S. in Computer Science</strong>, specializing in Computational Operations Research</p>
-      <p>Williamsburg, VA</p>
-
-      <h3>Rhodes College (May 2024)</h3>
-      <p><strong>B.S. in Computer Science, Minor in Mathematics</strong></p>
-      <p>Memphis, TN | GPA: 3.83</p>
-
-      <p class="courses">
-        <strong>Relevant Coursework:</strong>
-        Statistical Learning, Deep Learning, Machine Learning, 
-        Linear Programming, Advanced Algorithms, High Performance Computing, 
-        Probability, Linear Algebra, Reliability, Network Theory, 
-        Mathematical Statistics
-      </p>
+ <!-- EDUCATION SECTION -->
+<section id="education" class="section-container">
+  <h2>Education</h2>
+  <div class="education">
+    <!-- William & Mary -->
+    <div class="education-item">
+      <h4>William & Mary</h4>
+      <div class="degree">M.S. in Computer Science</div>
+      <div class="duration">Expected May 2026 | Williamsburg, VA | GPA: 3.80</div>
+      <p>Specializing in Computational Operations Research</p>
+      
+      <div class="courses">
+        <h5>Relevant Coursework</h5>
+        <ul>
+          <li>Statistical Learning</li>
+          <li>Linear Programming</li>
+          <li>Reliability</li>
+          <li>Network Location Theory</li>
+          <li>Machine Learning Systems</li>
+          <li>Probability</li>
+          <li>Mathematical Statistics</li>
+        </ul>
+      </div>
     </div>
-  </section>
+
+    <!-- Rhodes College -->
+    <div class="education-item">
+      <h4>Rhodes College</h4>
+      <div class="degree">B.S. in Computer Science, Minor in Mathematics</div>
+      <div class="duration">May 2024 | Memphis, TN | GPA: 3.83</div>
+      
+      <div class="courses">
+        <h5>Relevant Coursework</h5>
+        <ul>
+          <li>Deep Learning</li>
+          <li>Machine Learning</li>
+          <li>Reinforcement Learning</li>
+          <li>Advanced Algorithms</li>
+          <li>High Performance Computing</li>
+          <li>Theory Of Computation</li>
+          <li>Linear Algebra</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
   <!-- SKILLS SECTION -->
   <section id="skills" class="section-container section-alt-bg">

@@ -14,346 +14,271 @@
  *   3) <div id="hero-3d-bg"></div> in your hero section
  ******************************************************/
 
-import * as THREE from 'https://unpkg.com/three@0.152.2/build/three.module.js';
-import { OrbitControls } from './libs/OrbitControls.js';
-import { createNoise3D } from 'https://unpkg.com/simplex-noise@4.0.1/dist/esm/simplex-noise.js';
-
-// We'll create a 3D noise function for CPU side effects:
-const noise3D = createNoise3D(Math.random);
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 1) GLOBALS & CONFIG
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-let scene, camera, renderer, controls;
-let fractalSphere, fractalMaterial; 
-let neuralNetGroup, lineGroup;
-let nodeMeshes = [], nodePositions = [];
-let raycaster, mouse;
-
-let time = 0; // global animation time
-
-// Scene
-const BG_COLOR = 0x20232a; // black background
-const CAMERA_FOV = 30;
-const CAMERA_NEAR = 0.4;
-const CAMERA_FAR = 90;
-
-// Fractal Sphere Config
-const SPHERE_RADIUS = 10;
-const SPHERE_DETAIL = 50;
-const BASE_DISPLACEMENT = 1.2;  // base push along normals
-const NOISE_SCALE = 0.5;        // fractal noise scale
-const COLOR_SHIFT_SPEED = 3;  // how quickly color changes on mouse movement
-
-// Mouse Interactivity
-let mouseX = 0, mouseY = 0; // track normalized mouse coords for color shift
-
-// Neural Network
-const NODE_COUNT = 150;
-const NODE_SPREAD = 100;
-const CONNECTION_DISTANCE = 20;
-const NODE_BASE_COLOR = new THREE.Color(0xffffff);
-const NODE_EMISSIVE = new THREE.Color(0x1abc9c); // teal
-const LINE_COLOR = 0x00ffcc; 
-const LINE_BASE_OPACITY = 0.4;
-
-// Shaders for the fractal sphere
-const fractalVertexShader = `
-  uniform float uTime;
-  uniform float uDisplacement;
-  uniform float uNoiseScale;
-  uniform float uMouseX;
-  uniform float uMouseY;
-
-  varying vec3 vNormal;
-  varying vec3 vPos;
-  varying float vWave; // pass wave magnitude to fragment
-
-  void main() {
-    vNormal = normal;
-    vPos = position;
-
-    // We'll make the displacement vary with a sin wave 
-    // plus some influence from mouse coords
-    float offset = sin((position.x + position.y + position.z) * uNoiseScale 
-                       + uTime) 
-                   * (uDisplacement + uMouseX * 0.5 + uMouseY * 0.5);
-
-    vWave = offset; 
-    vec3 newPosition = position + normal * offset;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-  }
-`;
-
-const fractalFragmentShader = `
-  uniform float uTime;
-  uniform vec3 uBaseColor;
-
-  varying vec3 vNormal;
-  varying vec3 vPos;
-  varying float vWave;
-
-  void main() {
-    float intensity = dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
-    intensity = clamp(intensity, 0.0, 1.0);
-
-    // We shift color based on vWave 
-    // so parts with bigger wave offset glow differently
-    float waveFactor = 0.5 + 0.5 * sin(uTime + vWave * 2.0);
-
-    // Combine intensity with waveFactor
-    float glow = intensity * waveFactor;
-
-    vec3 color = uBaseColor * glow;
-
-    gl_FragColor = vec4(color, 1.0);
-  }
-`;
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // 2) INIT FUNCTION
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export function init() {
-  // 1) Scene
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(BG_COLOR);
+// 3d-animation.js
+class FractalNeuralAnimation {
+  constructor() {
+    this.canvas = document.getElementById('hero-canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.neurons = [];
+    this.time = 0;
+    this.zoom = 1;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.mouse = { x: 0, y: 0, isPressed: false };
+    this.isAnimating = true;
+    this.mandelbrotMode = true;
+    
+    this.initializeCanvas();
+    this.setupEventListeners();
+    this.createNeurons();
+    this.animate();
+  }
 
-  // 2) Camera
-  camera = new THREE.PerspectiveCamera(
-    CAMERA_FOV,
-    getHeroAspect(),
-    CAMERA_NEAR,
-    CAMERA_FAR
-  );
-  camera.position.set(-10, -30, 30);
+  initializeCanvas() {
+    const updateCanvasSize = () => {
+      this.canvas.width = this.canvas.offsetWidth * window.devicePixelRatio;
+      this.canvas.height = this.canvas.offsetHeight * window.devicePixelRatio;
+      this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    };
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+  }
 
-  // 3) Renderer
-  const container = document.getElementById('hero-3d-bg');
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  container.appendChild(renderer.domElement);
+  setupEventListeners() {
+    this.canvas.addEventListener('mousemove', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      this.mouse.x = e.clientX - rect.left;
+      this.mouse.y = e.clientY - rect.top;
+      
+      if (this.mouse.isPressed) {
+        this.offsetX += e.movementX / (this.zoom * 100);
+        this.offsetY += e.movementY / (this.zoom * 100);
+      }
+    });
 
+    this.canvas.addEventListener('mousedown', () => {
+      this.mouse.isPressed = true;
+    });
 
+    this.canvas.addEventListener('mouseup', () => {
+      this.mouse.isPressed = false;
+    });
 
-  // 4) OrbitControls
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.1;
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 0.3;
-  controls.enableRotate = true;  // disables user rotation
-  controls.enablePan = false;     // no panning
-  controls.enableZoom = true;    // no zoom
+    this.canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      this.zoom *= zoomFactor;
+      
+      // Zoom towards mouse position
+      const mouseXWorld = (this.mouse.x / this.canvas.width * 4 - 2) / this.zoom - this.offsetX;
+      const mouseYWorld = (this.mouse.y / this.canvas.height * 4 - 2) / this.zoom - this.offsetY;
+      
+      this.offsetX += mouseXWorld * (1 - zoomFactor);
+      this.offsetY += mouseYWorld * (1 - zoomFactor);
+    });
 
- 
+    // Toggle between Mandelbrot and Julia sets
+    window.addEventListener('keypress', (e) => {
+      if (e.key === 'm' || e.key === 'M') {
+        this.mandelbrotMode = !this.mandelbrotMode;
+      }
+    });
 
-  // 5) Lights
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-  scene.add(ambientLight);
+    document.addEventListener('visibilitychange', () => {
+      this.isAnimating = !document.hidden;
+      if (this.isAnimating) this.animate();
+    });
+  }
 
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(30, 50, 40);
-  scene.add(dirLight);
+  createNeurons() {
+    const numNeurons = 30;
+    this.neurons = [];
 
-  // 6) Raycaster & Mouse
-  raycaster = new THREE.Raycaster();
-  mouse = new THREE.Vector2();
-
-  // 7) Create fractal sphere
-  fractalSphere = createFractalSphere();
-  scene.add(fractalSphere);
-
-  // 8) Create neural network
-  neuralNetGroup = new THREE.Group();
-  lineGroup = new THREE.Group();
-  scene.add(neuralNetGroup, lineGroup);
-
-  createNeuralNetwork();
-
-  // 9) Event Listeners
-  window.addEventListener('resize', onWindowResize);
-  window.addEventListener('mousemove', onMouseMove);
-
-  // Start animation
-  animate();
-}
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 3) HELPER FUNCTIONS
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-function getHeroAspect() {
-  const hero = document.getElementById('hero');
-  const w = hero.clientWidth || window.innerWidth;
-  const h = hero.clientHeight || window.innerHeight;
-  return w / h;
-}
-
-function onWindowResize() {
-  const container = document.getElementById('hero-3d-bg');
-  camera.aspect = container.clientWidth / container.clientHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(container.clientWidth, container.clientHeight);
-}
-
-// On mouse move, we'll also track normalized X/Y for fractal color shift
-function onMouseMove(e) {
-  const container = document.getElementById('hero-3d-bg');
-  const rect = container.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  mouse.x = (x / container.clientWidth) * 2 - 1;
-  mouse.y = -(y / container.clientHeight) * 2 + 1;
-
-  // Convert x,y to a 0..1 range for color shifting
-  mouseX = x / container.clientWidth;  
-  mouseY = y / container.clientHeight; 
-
-  // Raycasting for node hover
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(neuralNetGroup.children, true);
-
-  // Reset node scales
-  nodeMeshes.forEach(node => {
-    node.scale.setScalar(1.0);
-    node.material.emissive.set(node.userData.emissiveBase);
-  });
-
-  if (intersects.length > 0) {
-    const hovered = intersects[0].object;
-    if (hovered.userData.isNode) {
-      hovered.scale.setScalar(1.5);
-      hovered.material.emissive.set(0xffffff); // highlight hovered node
+    for (let i = 0; i < numNeurons; i++) {
+      this.neurons.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        angle: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.5 + 0.5,
+        size: Math.random() * 3 + 2,
+        phase: Math.random() * Math.PI * 2
+      });
     }
   }
-}
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 4) FRACTAL SPHERE
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-function createFractalSphere() {
-  fractalMaterial = new THREE.ShaderMaterial({
-    vertexShader: fractalVertexShader,
-    fragmentShader: fractalFragmentShader,
-    uniforms: {
-      uTime:        { value: 0.0 },
-      uDisplacement:{ value: BASE_DISPLACEMENT },
-      uNoiseScale:  { value: NOISE_SCALE },
-      uBaseColor:   { value: new THREE.Color(0x1abc9c) }, // base teal
-      uMouseX:      { value: 0.0 },
-      uMouseY:      { value: 0.0 }
-    },
-    side: THREE.DoubleSide,
-    transparent: false
-  });
-
-  const geo = new THREE.SphereGeometry(SPHERE_RADIUS, SPHERE_DETAIL, SPHERE_DETAIL);
-
-  const mesh = new THREE.Mesh(geo, fractalMaterial);
-  mesh.name = 'FractalSphere';
-  return mesh;
-}
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 5) NEURAL NETWORK
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-function createNeuralNetwork() {
-  for (let i = 0; i < NODE_COUNT; i++) {
-    const nodeGeom = new THREE.SphereGeometry(0.5, 16, 16);
-    const nodeMat = new THREE.MeshStandardMaterial({
-      color: NODE_BASE_COLOR,
-      emissive: NODE_EMISSIVE.clone(),
-      metalness: 0.2,
-      roughness: 0.3
-    });
-    const nodeMesh = new THREE.Mesh(nodeGeom, nodeMat);
-
-    nodeMesh.userData.isNode = true;
-    nodeMesh.userData.emissiveBase = NODE_EMISSIVE.clone();
-
-    // random positions
-    nodeMesh.position.set(
-      THREE.MathUtils.randFloatSpread(NODE_SPREAD),
-      THREE.MathUtils.randFloatSpread(NODE_SPREAD),
-      THREE.MathUtils.randFloatSpread(NODE_SPREAD)
-    );
-
-    neuralNetGroup.add(nodeMesh);
-    nodeMeshes.push(nodeMesh);
-    nodePositions.push(nodeMesh.position);
+  mandelbrotIterations(x0, y0, maxIter) {
+    let x = 0, y = 0;
+    let iter = 0;
+    
+    while (x*x + y*y <= 4 && iter < maxIter) {
+      const xtemp = x*x - y*y + x0;
+      y = 2*x*y + y0;
+      x = xtemp;
+      iter++;
+    }
+    
+    return iter;
   }
 
-  lineGroup.name = 'NetworkLines';
-  updateConnections();
-}
-
-function updateConnections() {
-  while (lineGroup.children.length > 0) {
-    lineGroup.remove(lineGroup.children[0]);
+  juliaIterations(x0, y0, maxIter) {
+    let x = x0, y = y0;
+    const cx = Math.sin(this.time * 0.001) * 0.7;
+    const cy = Math.cos(this.time * 0.001) * 0.3;
+    let iter = 0;
+    
+    while (x*x + y*y <= 4 && iter < maxIter) {
+      const xtemp = x*x - y*y + cx;
+      y = 2*x*y + cy;
+      x = xtemp;
+      iter++;
+    }
+    
+    return iter;
   }
 
-  for (let i = 0; i < nodeMeshes.length; i++) {
-    for (let j = i + 1; j < nodeMeshes.length; j++) {
-      const dist = nodeMeshes[i].position.distanceTo(nodeMeshes[j].position);
-      if (dist < CONNECTION_DISTANCE) {
-        const points = [
-          nodeMeshes[i].position.clone(),
-          nodeMeshes[j].position.clone()
-        ];
-        const geo = new THREE.BufferGeometry().setFromPoints(points);
-        const mat = new THREE.LineBasicMaterial({
-          color: LINE_COLOR,
-          transparent: true,
-          opacity: LINE_BASE_OPACITY
-        });
-        const line = new THREE.Line(geo, mat);
-        lineGroup.add(line);
+  drawFractal() {
+    const imageData = this.ctx.createImageData(this.canvas.width, this.canvas.height);
+    const data = imageData.data;
+    const maxIter = 100;
+
+    for (let y = 0; y < this.canvas.height; y++) {
+      for (let x = 0; x < this.canvas.width; x++) {
+        const x0 = (x / this.canvas.width * 4 - 2) / this.zoom - this.offsetX;
+        const y0 = (y / this.canvas.height * 4 - 2) / this.zoom - this.offsetY;
+        
+        const iter = this.mandelbrotMode ? 
+          this.mandelbrotIterations(x0, y0, maxIter) :
+          this.juliaIterations(x0, y0, maxIter);
+        
+        const index = (y * this.canvas.width + x) * 4;
+        
+        if (iter === maxIter) {
+          data[index] = 0;
+          data[index + 1] = 0;
+          data[index + 2] = 0;
+        } else {
+          const hue = (iter / maxIter * 360 + this.time) % 360;
+          const brightness = iter / maxIter;
+          const rgb = this.hslToRgb(hue / 360, 0.7, brightness * 0.5);
+          
+          data[index] = rgb[0];
+          data[index + 1] = rgb[1];
+          data[index + 2] = rgb[2];
+        }
+        data[index + 3] = 255;
       }
     }
+    
+    this.ctx.putImageData(imageData, 0, 0);
+  }
+
+  hslToRgb(h, s, l) {
+    let r, g, b;
+
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  }
+
+  updateNeurons() {
+    this.neurons.forEach(neuron => {
+      // Update position using polar coordinates for more interesting movement
+      neuron.angle += neuron.speed * 0.02;
+      const radius = Math.sin(this.time * 0.001 + neuron.phase) * 50 + 100;
+      
+      neuron.x = this.canvas.width/2 + Math.cos(neuron.angle) * radius;
+      neuron.y = this.canvas.height/2 + Math.sin(neuron.angle) * radius;
+    });
+  }
+
+  drawNeurons() {
+    // Draw connections
+    this.neurons.forEach((neuron1, i) => {
+      this.neurons.slice(i + 1).forEach(neuron2 => {
+        const dx = neuron2.x - neuron1.x;
+        const dy = neuron2.y - neuron1.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < 150) {
+          const opacity = (1 - distance / 150) * 0.5;
+          this.ctx.beginPath();
+          this.ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+          this.ctx.lineWidth = opacity * 2;
+          
+          // Create curved connections
+          const midX = (neuron1.x + neuron2.x) / 2;
+          const midY = (neuron1.y + neuron2.y) / 2;
+          const offset = Math.sin(this.time * 0.002 + i) * 20;
+          
+          this.ctx.beginPath();
+          this.ctx.moveTo(neuron1.x, neuron1.y);
+          this.ctx.quadraticCurveTo(
+            midX + offset,
+            midY + offset,
+            neuron2.x,
+            neuron2.y
+          );
+          this.ctx.stroke();
+        }
+      });
+    });
+
+    // Draw neurons
+    this.neurons.forEach(neuron => {
+      const glowSize = Math.sin(this.time * 0.004 + neuron.phase) * 2 + 4;
+      
+      const gradient = this.ctx.createRadialGradient(
+        neuron.x, neuron.y, 0,
+        neuron.x, neuron.y, neuron.size * glowSize
+      );
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      
+      this.ctx.beginPath();
+      this.ctx.fillStyle = gradient;
+      this.ctx.arc(neuron.x, neuron.y, neuron.size * glowSize, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+  }
+
+  animate(currentTime = 0) {
+    if (!this.isAnimating) return;
+    
+    this.time = currentTime;
+    
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    this.drawFractal();
+    this.updateNeurons();
+    this.drawNeurons();
+    
+    requestAnimationFrame(this.animate.bind(this));
   }
 }
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 6) ANIMATION LOOP
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  time += 0.01;  // slower time step => calmer motion
-
-  // Update fractal's uniforms
-  fractalMaterial.uniforms.uTime.value = time * 2.0; 
-  // We'll shift color based on mouseX, mouseY
-  let newColor = new THREE.Color().setHSL(
-    (mouseX * COLOR_SHIFT_SPEED + 0.4) % 1.0, 
-    0.7, 
-    0.5 + mouseY * 0.2 
-  );
-  fractalMaterial.uniforms.uBaseColor.value = newColor;
-
-  // Animate lines with 3D noise
-  lineGroup.children.forEach(line => {
-    let mat = line.material;
-    // Use line.id + time for unique offsets
-    let nVal = noise3D(line.id * 0.1, time * 0.2, 0);
-    let pulse = 0.3 + 0.3 * Math.sin(time * 3.0 + nVal * 5.0);
-    mat.opacity = Math.min(1.0, Math.max(0.0, LINE_BASE_OPACITY + pulse));
-  });
-
-  controls.update();
-  renderer.render(scene, camera);
-}
-
-/* Optionally, if you want CPU-based fractal updates, 
-   you could add a function that loops over sphere geometry 
-   each frame, reading noise3D(...) and pushing vertices. 
-   But we do a GPU-based approach for now. */
-
-// Immediately init
-init();
+// Initialize animation when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  new FractalNeuralAnimation();
+});
