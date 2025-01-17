@@ -1,128 +1,162 @@
-# Data Science Portfolio with 3D Fractal & Neural Network Animation
+# Interactive Fractal Neural Network Portfolio
 
-Welcome to the ** My Portfolio** project of Marouf Paul! This repository showcases a **modern, interactive** web portfolio featuring:
+Welcome to my portfolio project featuring an advanced **interactive fractal-neural network animation**. This project showcases a unique blend of mathematical visualization and artificial neural network aesthetics, creating an engaging and dynamic user experience.
 
-- A **two-column hero layout**: text and CTAs on the left, a **3D fractal + neural network** animation on the right.  
-- A **rotating fractal sphere** driven by custom shaders (for wave-like distortion and color shifting).  
-- A **dynamic neural network** with pulsing lines and node hover effects.  
-- A fully **responsive** design that adapts to desktop, tablet, or mobile screens.  
-- **No** complicated drag/merge/split features—just smooth, visually appealing interactions that remain stable on resize.
+## Animation Features
+
+### 1. Fractal Visualization System
+- **Interactive Mandelbrot & Julia Sets**
+  - Real-time rendering of fractal mathematics
+  - Smooth transitions between Mandelbrot and Julia sets (toggle with 'M' key)
+  - Dynamic color mapping based on escape-time algorithms
+  - Interactive zoom and pan capabilities
+  - Time-evolving Julia sets for continuous visual interest
+
+### 2. Neural Network Overlay
+- **Dynamic Neural Nodes**
+  - Organically moving neurons following polar coordinate paths
+  - Pulsing glow effects with individual phase offsets
+  - Size variations based on mathematical wave functions
+  
+- **Intelligent Connections**
+  - Dynamic curved connections between nearby neurons
+  - Opacity modulation based on distance and time
+  - Smooth gradient effects for natural-looking links
+  - Adaptive connection density based on node proximity
+
+### 3. Interactive Elements
+- **Mouse Controls**
+  - Click and drag to pan across the fractal landscape
+  - Mouse wheel to zoom in/out of interesting regions
+  - Hover effects on neural nodes
+  - Smooth camera transitions
+
+- **Keyboard Controls**
+  - 'M' key - Toggle between Mandelbrot and Julia set modes
+  - More hotkeys can be easily added for additional features
+
+## Technical Implementation
+
+### Core Technologies
+- **Canvas API** for high-performance 2D rendering
+- **WebGL** for fractal computation and rendering
+- **JavaScript ES6+** for animation logic and interactivity
+
+### Mathematical Components
+- **Fractal Generation**
+  ```javascript
+  // Example of the core fractal computation
+  mandelbrotIterations(x0, y0, maxIter) {
+    let x = 0, y = 0;
+    let iter = 0;
+    while (x*x + y*y <= 4 && iter < maxIter) {
+      const xtemp = x*x - y*y + x0;
+      y = 2*x*y + y0;
+      x = xtemp;
+      iter++;
+    }
+    return iter;
+  }
+  ```
+
+- **Neural Network Physics**
+  - Polar coordinate-based movement patterns
+  - Wave function modulation for organic motion
+  - Distance-based connection management
+  - Color gradient interpolation
+
+## Setup and Usage
+
+1. **HTML Requirements**
+   ```html
+   <canvas id="hero-canvas"></canvas>
+   ```
+
+2. **Installation**
+   ```bash
+   # Clone the repository
+   git clone [your-repo-url]
+   
+   # Navigate to project directory
+   cd [project-folder]
+   
+   # If using npm packages
+   npm install
+   ```
+
+3. **Configuration**
+   The animation can be customized through various parameters:
+   ```javascript
+   // In your configuration file
+   const config = {
+     neurons: 30,          // Number of neural nodes
+     maxConnections: 150,  // Maximum connection distance
+     fractalDetail: 100,   // Iteration depth for fractals
+     colorCycle: 0.001     // Color cycling speed
+   };
+   ```
+
+## Performance Optimization
+
+The animation system includes several optimizations:
+- Efficient fractal computation using iterative methods
+- Canvas clearing optimization for smooth rendering
+- Adaptive detail levels based on zoom factor
+- Frame skipping for performance maintenance
+- Visibility-based animation pausing
+
+## Browser Support
+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+For optimal performance, WebGL 2.0 support is recommended.
+
+## Customization Guide
+
+### Color Schemes
+You can modify the color schemes by adjusting the HSL parameters:
+```javascript
+const hue = (iter / maxIter * 360 + this.time) % 360;
+const brightness = iter / maxIter;
+const rgb = this.hslToRgb(hue / 360, 0.7, brightness * 0.5);
+```
+
+### Animation Parameters
+Adjust these values to change the animation behavior:
+```javascript
+// Neural network parameters
+neuron.speed = 0.5;      // Movement speed
+neuron.size = 3;         // Node size
+neuron.phase = Math.PI;  // Phase offset
+
+// Fractal parameters
+this.zoom = 1;           // Initial zoom level
+this.offsetX = 0;        // X offset
+this.offsetY = 0;        // Y offset
+```
+
+## Contributing
+
+Feel free to submit issues and enhancement requests! Follow these steps:
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-## Table of Contents
+## Future Enhancements
 
-1. [Project Overview](#project-overview)  
-2. [Key Features](#key-features)  
-3. [Technologies & Dependencies](#technologies--dependencies)  
-4. [File Structure](#file-structure)  
-5. [Installation & Setup](#installation--setup)  
-6. [Configuration & Customization](#configuration--customization)  
-7. [Preview & Screenshots](#preview--screenshots)  
-8. [Notes & Future Ideas](#notes--future-ideas)
-9. [License](#license)
-
----
-
-## Project Overview
-
-This project is built to **showcase my portfolio** or any anyone who wants a **visually engaging** hero section. The hero is divided into **two columns**:
-
-- **Left**: Introduces ME!!!, showing key roles, a short subtitle, and action buttons (View Projects, Contact).  
-- **Right**: A **3D fractal sphere** that rotates continuously, changes color based on mouse movement, and brightens on hover. Around it floats a **neural network** of nodes connected by lines, each line pulsing in opacity thanks to simplex-noise.
-
-The rest of the site (e.g., About, Skills, Projects, Experience) remains a typical portfolio layout—**clean** and **professional**.
-
----
-
-## Key Features
-
-1. **Fractal Sphere**  
-   - **Shader-based** distortion with wave-like offset.  
-   - **Color shift** determined by mouse position (HSL-based).  
-   - **Hover** detection brightens the sphere slightly, preventing an overly dim appearance.
-
-2. **Neural Network**  
-   - Each node is a small sphere with an emissive teal color.  
-   - Lines connect nodes whose distance is below a threshold (forming a random “constellation” effect).  
-   - Line opacity **pulses** using 3D simplex noise.
-
-3. **Responsive Two-Column Layout**  
-   - On wider screens, hero text sits in the left column, while the 3D animation occupies the right column.  
-   - On narrower/mobile screens, the layout can switch to one column (configurable via CSS media queries).
-
-4. **OrbitControls** (Optional)**  
-   - The user can optionally rotate or zoom the scene.  
-   - If you prefer a purely **static** approach, you can disable user interactions and only keep autoRotate.
-
-5. **Balanced Brightness**  
-   - Custom fragment shader ensures the sphere’s “dark side” is never pitch black.
-
----
-
-## Technologies & Dependencies
-
-- **HTML5** & **CSS3** for structure and styling.  
-- **JavaScript (ES6+)** for the logic, interactivity, and fractal sphere creation.  
-- [**Three.js**](https://threejs.org/) for the 3D rendering, camera, geometry, and materials.  
-- [**OrbitControls**](https://threejs.org/docs/#examples/en/controls/OrbitControls) (patched version) to allow or restrict user navigation of the scene.  
-- [**simplex-noise**](https://www.npmjs.com/package/simplex-noise) for line pulsing / fractal noise logic.  
-- [**Markdown** (this README)] for documentation.
-
----
-
-## File Structure
-
-Your project might look like this:
-
-
-Briefly:
-
-- **`index.html`**  
-  Sets up the **two-column** hero layout (text on left, `<div id="hero-3d-bg">` on right). Links to `styles.css` and loads the `3d-animation.js` script.
-
-- **`styles.css`**  
-  Defines the **hero-section** flex layout, `.hero-left` and `.hero-right`, plus other global styles (header, nav, etc.).
-
-- **`3d-animation.js`**  
-  - **Initializes** the scene, camera, and renderer, referencing `<div id="hero-3d-bg">`.  
-  - **Creates** the fractal sphere with custom shaders and the neural net.  
-  - **Manages** the color shift logic and line pulsing.  
-  - **Listens** for hover detection and updates brightness or node scale as needed.
-
-- **`libs/OrbitControls.js`**  
-  (Optional, if you want user rotation). Must be a version that references `three.module.js` from the same CDN or your local copy, avoiding “bare specifier” errors.
-
----
-
-## Installation & Setup
-
-1. **Clone** or **download** this repository.
-2. **Open** the folder in your code editor.
-3. Make sure you have a **local server** to serve `index.html`. (You can use e.g. a simple extension in VS Code or run `python -m http.server 8080` in the folder.)
-4. Open `http://localhost:8080/` (or whichever port) in your browser.  
-   - The hero section loads with text on the left and the **3D fractal** + **neural network** on the right.
-
-To ensure the 3D animation works:
-
-- You must have an active internet connection to pull the Three.js / simplex-noise from the unpkg CDN **or** provide them locally.  
-- If you get a MIME or “bare specifier” error for `OrbitControls.js`, ensure it’s referencing `three.module.js` with a **full URL**.
-
----
-
-## Configuration & Customization
-
-1. **Adjust the camera**: In `3d-animation.js`, look for `camera.position.set(...)`. 
-   - Increase `z` if you want the fractal smaller in view.
-   - Shift `x` if you want it more to the left or right.
-
-2. **Disable/Enable user rotation**: In `init()` of `3d-animation.js`:
-   ```js
-   controls.enableRotate = false;
-   controls.enableZoom = false;
-   controls.enablePan = false;
-   controls.autoRotate = true; 
-
-
-
-
+- [ ] Add WebGL acceleration for fractal computation
+- [ ] Implement touch controls for mobile devices
+- [ ] Add more fractal types (Burning Ship, Phoenix, etc.)
+- [ ] Create preset animation patterns
+- [ ] Add real-time parameter controls via GUI
