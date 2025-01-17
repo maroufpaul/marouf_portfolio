@@ -481,3 +481,160 @@ nav a:hover {
       transform: translateY(0);
   }
 }
+
+
+/* Mobile Navigation Styles */
+@media screen and (max-width: 768px) {
+  .nav-container ul {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background: #18222F;
+    flex-direction: column;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
+
+  .nav-container ul.show {
+    display: flex;
+  }
+
+  .nav-container ul li {
+    margin: 15px 0;
+  }
+
+  .hamburger {
+    display: flex;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Hero Section Mobile Styles */
+  .hero-section {
+    flex-direction: column;
+    min-height: auto;
+    padding: 20px 0;
+  }
+
+  .hero-left {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .hero-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-about {
+    margin-left: 0 !important;
+    margin-top: 2rem;
+  }
+
+  .profile-image {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .hero-cta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .hero-cta .btn {
+    width: 100%;
+    max-width: 250px;
+    margin: 5px 0;
+    text-align: center;
+  }
+
+  /* Animation Container Mobile Styles */
+  .hero-right {
+    height: 300px;
+    width: 100%;
+    position: relative;
+  }
+
+  #hero-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .toggle-text {
+    font-size: 1rem;
+    padding: 8px 12px;
+    width: 90%;
+    max-width: 300px;
+  }
+
+  /* Projects Grid Mobile Styles */
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* Skills Section Mobile Styles */
+  .skills-wrapper {
+    flex-direction: column;
+  }
+
+  .skill-category {
+    width: 100%;
+  }
+
+  /* Contact Form Mobile Styles */
+  .contact-form {
+    width: 90%;
+    margin: 0 auto;
+  }
+
+  /* Experience Cards Mobile Styles */
+  .experience-card {
+    padding: 15px;
+  }
+
+  .experience-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .experience-card h3 span {
+    display: block;
+    margin-left: 0;
+    margin-top: 5px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Small Mobile Devices */
+@media screen and (max-width: 480px) {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .section-container {
+    padding: 30px 15px;
+  }
+
+  .hero-right {
+    height: 250px;
+  }
+}
