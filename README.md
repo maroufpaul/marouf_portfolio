@@ -75,7 +75,7 @@ Welcome to my portfolio project featuring an advanced **interactive fractal-neur
 2. **Installation**
    ```bash
    # Clone the repository
-   git clone [your-repo-url]
+   git clone [[your-repo-url](https://github.com/maroufpaul/marouf_portfolio.git)]
    
    # Navigate to project directory
    cd [project-folder]
